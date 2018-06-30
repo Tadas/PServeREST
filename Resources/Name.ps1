@@ -13,7 +13,7 @@ function GET-Name {
 function PUT-Name {
 	Param($Context)
 	
-	if ($Request.ContentType -eq "application/x-www-form-urlencoded"){
+	if ($Context.Request.ContentType -eq "application/x-www-form-urlencoded"){
 		$FormData = [System.Web.HttpUtility]::ParseQueryString($Context.Request.RawContent)
 		$script:Name = $FormData['Name']
 	} else {
