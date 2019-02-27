@@ -1,0 +1,33 @@
+﻿image: Visual Studio 2017
+
+environment:
+  GithubApiKey:
+    secure: yZd8NUxin8d4N8CBNZTtNuLHaQjPPtBvEFk0qhlCJLxiATwjX1rXIVhNovp6wd3w
+
+# only build pushes to master - can work on other branches without triggering builds
+branches:
+  only:
+    - master
+
+skip_tags: true
+
+install:
+    - ps: |
+        Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force -Verbose
+        Install-Module InvokeBuild -Force
+
+        # Download latest Invoke-Build file
+        # Does not apply to MyBuildTools
+        [System.Net.WebClient]::new().DownloadFile(
+            "https://raw.githubusercontent.com/Tadas/MyBuildTools/$((Invoke-RestMethod "https://api.github.com/repos/Tadas/MyBuildTools/releases/latest").tag_name)/.build.ps1",
+            "$pwd\.build.ps1"
+        )
+
+build: false
+
+test_script:
+    - ps: Invoke-Build -Task Test
+
+after_test:
+    - ps: |
+        if([string]::IsNullOrEmpty($env:APPVEYOR_PULL_REQUEST_NUMBER)) { Invoke-Build -Task DeployGithub }
