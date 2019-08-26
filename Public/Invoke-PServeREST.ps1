@@ -1,6 +1,9 @@
 ﻿function Invoke-PServeREST {
 	Param(
-		[string]$ListenURI = 'http://+:1234/'
+		[string]$ListenURI = 'http://+:1234/',
+
+		[ValidateScript({ Test-Path -LiteralPath $_ -PathType Container })]
+		[string]$ResourcesFolder = "$PSScriptRoot\..\DemoResources"
 	)
 
 	Write-Log "ListenURI = $ListenURI"
@@ -19,7 +22,7 @@
 				$Resource = $(Get-ResourceFromURL $Context.Request.RawUrl) # Extract the resource user wants to access from the url
 
 				# Generate resource handler file name and make sure it exists
-				$ResourceHandlerFile = Join-Path $PSScriptRoot "Resources\$Resource.ps1"
+				$ResourceHandlerFile = [System.IO.Path]::Combine( $ResourcesFolder, "$Resource.ps1" )
 				Write-Verbose "MainLoop| ResourceHandlerFile: $ResourceHandlerFile"
 				if ( -not (Test-Path -LiteralPath $ResourceHandlerFile -Type Leaf) ){
 					Write-Verbose "MainLoop| Resource handler script not found"
